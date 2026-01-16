@@ -38,7 +38,7 @@ model User {
     email              String     @unique
     password           String
     role               UserRole   @default(BUYER)
-    needPasswordChange Boolean    @default(true)
+    needPasswordChange Boolean    @default(false)
     status             UserStatus @default(ACTIVE)
     createdAt          DateTime   @default(now())
     updatedAt          DateTime   @updatedAt
@@ -74,10 +74,8 @@ model Admin {
   isDeleted      Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-
   user           User     @relation(fields: [email], references: [email])
 }
-
 // Product
 model Product {
   id          String    @id @default(uuid())
