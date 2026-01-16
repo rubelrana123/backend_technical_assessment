@@ -1,32 +1,44 @@
-import z from "zod";
+import { z } from "zod";
 
+/**
+ * Shared profile schema
+ */
+const profileSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+});
+
+/**
+ * CREATE BUYER
+ */
 const createBuyerValidationSchema = z.object({
-    password: z.string(),
-    buyer: z.object({
-        name: z.string().nonempty("Name is required"),
-        email: z.string().nonempty("Email is required"),
-        address: z.string().optional()
-    })
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  profile: profileSchema,
 });
 
-
+/**
+ * CREATE ADMIN
+ */
 const createAdminValidationSchema = z.object({
-    password: z.string({
-        error: "Password is required"
-    }),
-    admin: z.object({
-        name: z.string({
-            error: "Name is required!"
-        }),
-        email: z.string({
-            error: "Email is required!"
-        }),
-        contactNumber: z.string({
-            error: "Contact Number is required!"
-        })
-    })
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  profile: profileSchema,
 });
+
+/**
+ * CREATE SELLER
+ */
+const createSellerValidationSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  shopName: z.string().min(1, "Shop name is required"),
+  profile: profileSchema,
+});
+
 export const UserValidation = {
-    createBuyerValidationSchema,
-    createAdminValidationSchema
-}
+  createBuyerValidationSchema,
+  createAdminValidationSchema,
+  createSellerValidationSchema,
+};

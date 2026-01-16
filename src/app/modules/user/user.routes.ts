@@ -18,6 +18,17 @@ router.post(
 )
 
 // create seller
+router.post(
+    "/create-seller",
+    fileUploader.upload.single('file'),
+    (req: Request, res: Response, next: NextFunction) => {
+        req.body = UserValidation.createSellerValidationSchema.parse(JSON.parse(req.body.data))
+        return UserController.createSeller(req, res, next)
+    }
+
+)
+
+// create admin 
 
 router.post(
     "/create-admin",

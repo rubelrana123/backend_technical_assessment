@@ -14,6 +14,16 @@ const createBuyer = catchAsync(async (req: Request, res: Response) => {
     })
 })
 
+
+const createSeller = catchAsync(async (req: Request, res: Response) => {
+    const result = await UserService.createSeller(req);
+    sendResponse(res, {
+        statusCode: 201,
+        success: true,
+        message: "Seller Created successfuly!",
+        data: result
+    })
+});
 const createAdmin = catchAsync(async (req: Request, res: Response) => {
 
     const result = await UserService.createAdmin(req);
@@ -27,5 +37,6 @@ const createAdmin = catchAsync(async (req: Request, res: Response) => {
 
 export const UserController = {
     createBuyer,
-    createAdmin
+    createAdmin,
+    createSeller
 }
