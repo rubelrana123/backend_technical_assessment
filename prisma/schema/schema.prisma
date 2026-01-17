@@ -42,6 +42,7 @@ model User {
   password  String
   role      UserRole   @default(BUYER)
   status    UserStatus @default(ACTIVE)
+  needPasswordChange Boolean?    @default(false)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
@@ -88,6 +89,7 @@ model Category {
   id        String    @id @default(uuid())
   name      String    @unique
   isActive  Boolean   @default(true)
+  imageUrl  String?
   createdAt DateTime  @default(now())
 
   products Product[]
@@ -104,6 +106,7 @@ model Product {
   description String?
   price       Int      // stored in cents
   stock       Int
+  imageUrl    String?
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

@@ -7,6 +7,9 @@ import { UserRole } from '@prisma/client';
 
 const router = express.Router();
 
+//get all users
+
+// create buyer
 router.post(
     "/create-buyer",
     fileUploader.upload.single('file'),
