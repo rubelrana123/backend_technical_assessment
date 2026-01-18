@@ -1,13 +1,10 @@
 import { Request } from "express";
 import { prisma } from "../../shared/prisma";
 import { fileUploader } from "../../helper/fileUploader";
-  // const { email, password, profile, shopName } = req.body;
-
-  // if (req.file) {
-  //   const uploadResult = await fileUploader.uploadToCloudinary(req.file);
-  //   profile.profilePhoto = uploadResult?.secure_url;
-  // }
-
+import { IOptions, paginationHelper } from "../../helper/paginationHelper";
+import { Prisma } from "@prisma/client";
+import { productSearchableFields } from "./product.constant";
+ 
 const createProductCategory = async (req: Request) => {
   const { name, isActive = true } = req.body;
 
@@ -78,7 +75,63 @@ const createProduct = async (req: Request & { user?: any }) => {
 
   return product;
 };
+
+const getAllProduct = async (filters: any, options: IOptions) => {
+    const { page, limit, skip, sortBy, sortOrder } = paginationHelper.calculatePagination(options);
+    const { searchTerm, specialties, ...filterData } = filters;
+
+    const andConditions: Prisma.ProductWhereInput[] = [];
+    if (searchTerm) {
+        andConditions.push({
+            OR: productSearchableFields.map((field) => ({
+                [field]: {
+                    contains: searchTerm,
+                    mode: "insensitive"
+                }
+            }))
+        })
+    }
+
+    if (Object.keys(filterData).length > 0) {
+        const filterConditions = Object.keys(filterData).map((key) => ({
+            [key]: {
+                equals: (filterData as any)[key]
+            }
+        }))
+
+        andConditions.push(...filterConditions)
+    }
+
+    const whereConditions: Prisma.ProductWhereInput = andConditions.length > 0 ? { AND: andConditions } : {};
+
+    const result = await prisma.product.findMany({
+        where: whereConditions,
+        skip,
+        take: limit,
+        orderBy: {
+            [sortBy]: sortOrder
+        },
+        include: {
+            category: true
+        }
+    });
+
+    const total = await prisma.product.count({
+        where: whereConditions
+    })
+
+    return {
+        meta: {
+            total,
+            page,
+            limit
+        },
+        data: result
+    }
+}
+
 export const ProductService = {
   createProduct,
-  createProductCategory
+  createProductCategory,
+  getAllProduct
 };

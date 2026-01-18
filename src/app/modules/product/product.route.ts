@@ -31,4 +31,10 @@ router.post(
         return ProductController.createProduct(req, res, next)
     }
 )
+
+router.get(
+    "/",
+    auth(UserRole.ADMIN, UserRole.SELLER, UserRole.BUYER),
+    ProductController.getAllProduct
+)
 export const productRoutes = router;

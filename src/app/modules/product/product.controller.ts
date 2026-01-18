@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import { ProductService } from "./product.service";
 import catchAsync from "../../shared/catchAsync";
 import sendResponse from "../../shared/sendResponse";
+import pick from "../../helper/pick";
+import { productFilterableFields } from "./product.constant";
 
 const createProductCategory = catchAsync(async (req: Request, res: Response) => {
     const result = await ProductService.createProductCategory(req);
@@ -23,8 +25,25 @@ const createProduct = catchAsync(async (req: Request, res: Response) => {
     })
 });
 
+const getAllProduct = catchAsync(async (req: Request, res: Response) => {
+    const options = pick(req.query, ["page", "limit", "sortBy", "sortOrder"]);
+    const fillters = pick(req.query, productFilterableFields)
+
+    const result = await ProductService.getAllProduct(fillters, options);
+
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: "Products retrieved successfully!",
+        meta: result.meta,
+        data: result.data
+    })
+})
+
+
  
 export const ProductController = {
   createProduct,
-  createProductCategory
+  createProductCategory,
+  getAllProduct
 };
