@@ -76,60 +76,120 @@ const createProduct = async (req: Request & { user?: any }) => {
   return product;
 };
 
-//get all products
 const getAllProduct = async (filters: any, options: IOptions) => {
-    const { page, limit, skip, sortBy, sortOrder } = paginationHelper.calculatePagination(options);
-    const { searchTerm, specialties, ...filterData } = filters;
+  const { page, limit, skip, sortBy, sortOrder } =
+    paginationHelper.calculatePagination(options);
 
-    const andConditions: Prisma.ProductWhereInput[] = [];
-    if (searchTerm) {
-        andConditions.push({
-            OR: productSearchableFields.map((field) => ({
-                [field]: {
-                    contains: searchTerm,
-                    mode: "insensitive"
-                }
-            }))
-        })
-    }
+  const {
+    searchTerm,
+    minPrice,
+    maxPrice,
+    inStock,
+    categoryId,
+    sellerId,
+    isActive,
+  } = filters;
 
-    if (Object.keys(filterData).length > 0) {
-        const filterConditions = Object.keys(filterData).map((key) => ({
-            [key]: {
-                equals: (filterData as any)[key]
-            }
-        }))
+  const andConditions: Prisma.ProductWhereInput[] = [];
 
-        andConditions.push(...filterConditions)
-    }
+  /* ================= SEARCH ================= */
+  const trimmedSearchTerm =
+    typeof searchTerm === "string" ? searchTerm.trim() : "";
 
-    const whereConditions: Prisma.ProductWhereInput = andConditions.length > 0 ? { AND: andConditions } : {};
-
-    const result = await prisma.product.findMany({
-        where: whereConditions,
-        skip,
-        take: limit,
-        orderBy: {
-            [sortBy]: sortOrder
+  if (trimmedSearchTerm.length > 0) {
+    andConditions.push({
+      OR: [
+        {
+          name: {
+            contains: trimmedSearchTerm,
+            mode: "insensitive",
+          },
         },
-        include: {
-            category: true
-        }
+        {
+          description: {
+            contains: trimmedSearchTerm,
+            mode: "insensitive",
+          },
+        },
+        {
+          category: {
+            is: {
+              name: {
+                contains: trimmedSearchTerm,
+                mode: "insensitive",
+              },
+            },
+          },
+        },
+        {
+          seller: {
+            is: {
+              shopName: {
+                contains: trimmedSearchTerm,
+                mode: "insensitive",
+              },
+            },
+          },
+        },
+      ],
     });
+  }
 
-    const total = await prisma.product.count({
-        where: whereConditions
-    })
+  /* ================= PRICE ================= */
+  if (minPrice || maxPrice) {
+    andConditions.push({
+      price: {
+        ...(minPrice && { gte: Number(minPrice) }),
+        ...(maxPrice && { lte: Number(maxPrice) }),
+      },
+    });
+  }
 
-    return {
-        meta: {
-            total,
-            page,
-            limit
-        },
-        data: result
-    }
-}
+  /* ================= STOCK ================= */
+  if (inStock === "true") {
+    andConditions.push({ stock: { gt: 0 } });
+  }
+
+  /* ================= ACTIVE ================= */
+  if (isActive !== undefined) {
+    andConditions.push({ isActive: isActive === "true" });
+  }
+
+  /* ================= CATEGORY ================= */
+  if (categoryId) {
+    andConditions.push({ categoryId });
+  }
+
+  /* ================= SELLER ================= */
+  if (sellerId) {
+    andConditions.push({ sellerId });
+  }
+
+  const whereConditions: Prisma.ProductWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const result = await prisma.product.findMany({
+    where: whereConditions,
+    skip,
+    take: limit,
+    orderBy: sortBy
+      ? { [sortBy]: sortOrder ?? "desc" }
+      : { createdAt: "desc" },
+    include: {
+      category: true,
+      seller: true,
+    },
+  });
+
+  const total = await prisma.product.count({
+    where: whereConditions,
+  });
+
+  return {
+    meta: { total, page, limit },
+    data: result,
+  };
+};
 
 export const ProductService = {
   createProduct,

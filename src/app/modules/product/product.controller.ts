@@ -26,19 +26,20 @@ const createProduct = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllProduct = catchAsync(async (req: Request, res: Response) => {
-    const options = pick(req.query, ["page", "limit", "sortBy", "sortOrder"]);
-    const fillters = pick(req.query, productFilterableFields)
+  const options = pick(req.query, ["page", "limit", "sortBy", "sortOrder"]);
 
-    const result = await ProductService.getAllProduct(fillters, options);
+  const filters = pick(req.query, productFilterableFields);
 
-    sendResponse(res, {
-        statusCode: 200,
-        success: true,
-        message: "Products retrieved successfully!",
-        meta: result.meta,
-        data: result.data
-    })
-})
+  const result = await ProductService.getAllProduct(filters, options);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Products retrieved successfully!",
+    meta: result.meta,
+    data: result.data,
+  });
+});
 
 
  
