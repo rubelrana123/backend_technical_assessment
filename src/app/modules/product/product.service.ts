@@ -93,41 +93,36 @@ const getAllProduct = async (filters: any, options: IOptions) => {
   const andConditions: Prisma.ProductWhereInput[] = [];
 
   /* ================= SEARCH ================= */
-  const trimmedSearchTerm =
-    typeof searchTerm === "string" ? searchTerm.trim() : "";
+  if (typeof searchTerm === "string" && searchTerm.trim() !== "") {
+    const term = searchTerm.trim();
 
-  if (trimmedSearchTerm.length > 0) {
     andConditions.push({
       OR: [
         {
           name: {
-            contains: trimmedSearchTerm,
+            contains: term,
             mode: "insensitive",
           },
         },
         {
           description: {
-            contains: trimmedSearchTerm,
+            contains: term,
             mode: "insensitive",
           },
         },
         {
           category: {
-            is: {
-              name: {
-                contains: trimmedSearchTerm,
-                mode: "insensitive",
-              },
+            name: {
+              contains: term,
+              mode: "insensitive",
             },
           },
         },
         {
           seller: {
-            is: {
-              shopName: {
-                contains: trimmedSearchTerm,
-                mode: "insensitive",
-              },
+            shopName: {
+              contains: term,
+              mode: "insensitive",
             },
           },
         },
@@ -135,45 +130,53 @@ const getAllProduct = async (filters: any, options: IOptions) => {
     });
   }
 
-  /* ================= PRICE ================= */
-  if (minPrice || maxPrice) {
+  /* ================= PRICE RANGE ================= */
+  if (minPrice !== undefined || maxPrice !== undefined) {
     andConditions.push({
       price: {
-        ...(minPrice && { gte: Number(minPrice) }),
-        ...(maxPrice && { lte: Number(maxPrice) }),
+        ...(minPrice !== undefined && { gte: Number(minPrice) }),
+        ...(maxPrice !== undefined && { lte: Number(maxPrice) }),
       },
     });
   }
 
   /* ================= STOCK ================= */
   if (inStock === "true") {
-    andConditions.push({ stock: { gt: 0 } });
+    andConditions.push({
+      stock: { gt: 0 },
+    });
   }
 
-  /* ================= ACTIVE ================= */
-  if (isActive !== undefined) {
-    andConditions.push({ isActive: isActive === "true" });
+  /* ================= ACTIVE STATUS ================= */
+  if (isActive === "true" || isActive === "false") {
+    andConditions.push({
+      isActive: isActive === "true",
+    });
   }
 
   /* ================= CATEGORY ================= */
   if (categoryId) {
-    andConditions.push({ categoryId });
+    andConditions.push({
+      categoryId,
+    });
   }
 
   /* ================= SELLER ================= */
   if (sellerId) {
-    andConditions.push({ sellerId });
+    andConditions.push({
+      sellerId,
+    });
   }
 
   const whereConditions: Prisma.ProductWhereInput =
-    andConditions.length > 0 ? { AND: andConditions } : {};
+    andConditions.length ? { AND: andConditions } : {};
 
-  const result = await prisma.product.findMany({
+  const products = await prisma.product.findMany({
     where: whereConditions,
     skip,
     take: limit,
     orderBy: sortBy
-      ? { [sortBy]: sortOrder ?? "desc" }
+      ? { [sortBy]: sortOrder === "asc" ? "asc" : "desc" }
       : { createdAt: "desc" },
     include: {
       category: true,
@@ -186,8 +189,12 @@ const getAllProduct = async (filters: any, options: IOptions) => {
   });
 
   return {
-    meta: { total, page, limit },
-    data: result,
+    meta: {
+      total,
+      page,
+      limit,
+    },
+    data: products,
   };
 };
 

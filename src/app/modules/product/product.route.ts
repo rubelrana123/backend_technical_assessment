@@ -1,6 +1,5 @@
 import express, { NextFunction, Request, Response } from 'express';
- 
-import { ProductService } from './product.service';
+
 import { fileUploader } from '../../helper/fileUploader';
 import { ProductController } from './product.controller';
 import { ProductValidation } from './product.validation';
