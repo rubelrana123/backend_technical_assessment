@@ -76,6 +76,7 @@ const createProduct = async (req: Request & { user?: any }) => {
   return product;
 };
 
+//get all products
 const getAllProduct = async (filters: any, options: IOptions) => {
     const { page, limit, skip, sortBy, sortOrder } = paginationHelper.calculatePagination(options);
     const { searchTerm, specialties, ...filterData } = filters;
