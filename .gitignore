@@ -11,4 +11,4 @@ node_modules
 uploads/*
 !uploads/.gitkeep
 *.log
-./src/app/modules/payment
+./src/app/modules/payment   
