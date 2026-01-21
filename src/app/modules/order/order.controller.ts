@@ -1,22 +1,28 @@
 import { Request, Response } from "express";
+import catchAsync from "../../shared/catchAsync";
+import sendResponse from "../../shared/sendResponse";
 import { OrderService } from "./order.service";
+import httpStatus from "http-status";
 
-const checkout = async (req: Request & { user?: any }, res: Response) => {
+const checkout = catchAsync(async (req: Request & { user?: any }, res: Response) => {
   const result = await OrderService.checkout(req.user!.id);
-  res.status(201).json({
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
     success: true,
     message: "Order placed successfully",
     data: result,
   });
-};
+});
 
-const getMyOrders = async (req: Request & { user?: any }, res: Response) => {
+const getMyOrders = catchAsync(async (req: Request & { user?: any }, res: Response) => {
   const result = await OrderService.getMyOrders(req.user!.id);
-  res.status(200).json({
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
     success: true,
     data: result,
+    message: "get user's orders successfully",
   });
-};
+});
 
 export const OrderController = {
   checkout,
