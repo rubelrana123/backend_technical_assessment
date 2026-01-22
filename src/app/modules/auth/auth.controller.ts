@@ -3,6 +3,8 @@ import catchAsync from "../../shared/catchAsync";
 import sendResponse from "../../shared/sendResponse";
 import { AuthService } from "./auth.service";
 import httpStatus from "http-status";
+import { access } from "fs";
+import { ref } from "process";
 
 const login = catchAsync(async (req: Request, res: Response) => {
     const result = await AuthService.login(req.body);
@@ -49,7 +51,7 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
         success: true,
         message: "Access token genereated successfully!",
         data: {
-            message: "Access token genereated successfully!",
+          accessToken: result.accessToken
         },
     });
 });

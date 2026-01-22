@@ -5,13 +5,23 @@ import notFound from './app/middlewares/notFound';
 import config from './config';
 import router from './app/routes';
 import cookieParser from 'cookie-parser';
+import { PaymentController } from './app/modules/payment/payment.controller';
+ 
 const app: Application = express();
+
+
+app.post(
+    "/api/v1/webhook",
+    express.raw({ type: "application/json" }),
+    PaymentController.stripeWebhook
+);
+
 app.use(cors({
-    origin: 'http://localhost:3001',
+    origin: 'http://localhost:3000',
     credentials: true
 }));
 
-//parser
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

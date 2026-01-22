@@ -1,10 +1,14 @@
 import { prisma } from "../../shared/prisma";
 import { OrderStatus } from "@prisma/client";
 
-const checkout = async (userId: string) => {
+const checkout = async (user: any) => {
   return prisma.$transaction(async (tx) => {
+    const isUserExist = await tx.user.findUniqueOrThrow({
+      where: { email: user.email },
+    });
+
     const cart = await tx.cart.findUnique({
-      where: { userId },
+      where: { userId: isUserExist.id },
       include: {
         items: {
           include: { product: true },
@@ -24,7 +28,7 @@ const checkout = async (userId: string) => {
 
     const order = await tx.order.create({
       data: {
-        userId,
+        userId: isUserExist.id,
         totalAmount,
         status: OrderStatus.PENDING,
       },
@@ -37,13 +41,6 @@ const checkout = async (userId: string) => {
           productId: item.productId,
           price: item.product.price,
           quantity: item.quantity,
-        },
-      });
-
-      await tx.product.update({
-        where: { id: item.productId },
-        data: {
-          stock: { decrement: item.quantity },
         },
       });
     }

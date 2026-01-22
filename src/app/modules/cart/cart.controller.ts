@@ -4,7 +4,9 @@ import catchAsync from "../../shared/catchAsync";
 import sendResponse from "../../shared/sendResponse";
 import httpStatus from "http-status";
 const addToCart = catchAsync(async (req: Request & { user?: any }, res: Response) => {
-  const result = await CartService.addToCart(req.user!.id, req.body);
+ console.log(req?.user,"and ", req.body)
+  
+  const result = await CartService.addToCart(req?.user, req.body);
         sendResponse(res, {
             statusCode: httpStatus.OK,
             success: true,
@@ -14,7 +16,7 @@ const addToCart = catchAsync(async (req: Request & { user?: any }, res: Response
 });
 
 const getMyCart = catchAsync(async (req: Request & { user?: any }, res: Response) => {
-  const result = await CartService.getMyCart(req.user!.id);
+  const result = await CartService.getMyCart(req.user!);
  sendResponse(res, {
             statusCode: httpStatus.OK,
             success: true,
@@ -24,7 +26,7 @@ const getMyCart = catchAsync(async (req: Request & { user?: any }, res: Response
 });
 
 const updateCartItem = catchAsync(async (req: Request & { user?: any }, res: Response) => {
-  const result = await CartService.updateCartItem(req.user!.id, req.body);
+  const result = await CartService.updateCartItem(req.user, req.body);
   sendResponse(res, {
             statusCode: httpStatus.OK,
             success: true,
@@ -35,7 +37,7 @@ const updateCartItem = catchAsync(async (req: Request & { user?: any }, res: Res
 
 const removeFromCart = catchAsync(async (req: Request & { user?: any }, res: Response) => {
   const result = await CartService.removeFromCart(
-    req.user!.id,
+    req.user!,
     req.params.productId as string
   );
   sendResponse(res, {

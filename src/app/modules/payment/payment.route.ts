@@ -11,12 +11,8 @@ router.post(
   auth(UserRole.BUYER),
   PaymentController.createPaymentIntent
 );
+ 
+router.post("/webhook", PaymentController.stripeWebhook);
 
-// Stripe webhook endpoint
-router.post(
-  "/webhook",
-  express.raw({ type: "application/json" }),
-  PaymentController.stripeWebhook
-);
 
 export const PaymentRoutes = router;

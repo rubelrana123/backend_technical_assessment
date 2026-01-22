@@ -1,18 +1,21 @@
 import { prisma } from "../../shared/prisma";
 
 const addToCart = async (
-  userId: string,
+  user: any,
   payload: { productId: string; quantity: number }
 ) => {
   const { productId, quantity } = payload;
 
+  const isUserExist = await prisma.user.findUniqueOrThrow({
+    where: { email: user.email },
+  });
   let cart = await prisma.cart.findUnique({
-    where: { userId },
+    where: { userId: isUserExist.id },
   });
 
   if (!cart) {
     cart = await prisma.cart.create({
-      data: { userId },
+      data: { userId: isUserExist.id },
     });
   }
 
@@ -43,9 +46,12 @@ const addToCart = async (
   });
 };
 
-const getMyCart = async (userId: string) => {
+const getMyCart = async (user: any) => {
+  const isUserExist = await prisma.user.findUniqueOrThrow({
+    where: { email: user.email },
+  });
   return prisma.cart.findUnique({
-    where: { userId },
+    where: { userId: isUserExist.id },
     include: {
       items: {
         include: {
@@ -57,11 +63,14 @@ const getMyCart = async (userId: string) => {
 };
 
 const updateCartItem = async (
-  userId: string,
+  user: any,
   payload: { productId: string; quantity: number }
 ) => {
+  const isUserExist = await prisma.user.findUniqueOrThrow({
+    where: { email: user.email },
+  });
   const cart = await prisma.cart.findUniqueOrThrow({
-    where: { userId },
+    where: { userId: isUserExist.id },
   });
 
   return prisma.cartItem.update({
@@ -77,9 +86,13 @@ const updateCartItem = async (
   });
 };
 
-const removeFromCart = async (userId: string, productId: string) => {
+const removeFromCart = async (user: any, productId: string) => {
+  const isUserExist = await prisma.user.findUniqueOrThrow({
+    where: { email: user.email },
+  });
+
   const cart = await prisma.cart.findUniqueOrThrow({
-    where: { userId },
+    where: { userId: isUserExist.id },
   });
 
   return prisma.cartItem.delete({
