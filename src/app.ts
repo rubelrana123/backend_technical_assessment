@@ -11,7 +11,7 @@ const app: Application = express();
 
 
 app.post(
-    "/api/v1/webhook",
+    "/webhook",
     express.raw({ type: "application/json" }),
     PaymentController.stripeWebhook
 );

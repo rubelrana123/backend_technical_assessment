@@ -4,7 +4,7 @@ import catchAsync from "../../shared/catchAsync";
 import sendResponse from "../../shared/sendResponse";
 import httpStatus from "http-status";
 const addToCart = catchAsync(async (req: Request & { user?: any }, res: Response) => {
- console.log(req?.user,"and ", req.body)
+ 
   
   const result = await CartService.addToCart(req?.user, req.body);
         sendResponse(res, {
