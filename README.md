@@ -66,4 +66,9 @@ Dev super admin (from `.env`):
 - Email: `super@admin.com`
 - Password: `superadmin`
 
+Sample users (from Postman collection):
+- Seller: `seller2@gmail.com` / `123456`
+- Admin: `admin1@gmail.com` / `123456`
+- Buyer: `buyer1@gmail.com` / `123456`
+
 Replace these values for production deployments.
