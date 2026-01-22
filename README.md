@@ -14,8 +14,15 @@ Backend API for an e-commerce-style system with role-based access (admin, seller
 - Stripe
 - Nodemailer
 
+## Live URL
+`https://ecommerce-server-j4am.onrender.com`
+
 ## API Routes
-Base URL: `/api/v1`
+Base URL (local): `http://localhost:5000/api/v1`  
+Base URL (live): `https://ecommerce-server-j4am.onrender.com/api/v1`
+
+Root
+- `GET /` (base URL root)
 
 Auth
 - `GET /auth/me`
@@ -40,6 +47,19 @@ Cart
 - `GET /cart/my-cart` (buyer)
 - `PATCH /cart/update` (buyer)
 - `DELETE /cart/remove/:productId` (buyer)
+
+Orders
+- `POST /order/checkout`
+- `GET /order/my-orders` (buyer)
+
+Payments
+- `POST /payment/create-payment-intent` (buyer)
+- `POST /payment/webhook` (Stripe)
+
+## Postman Collection
+Import `Backend Technical Assignment API.postman_collection.json` and set:
+- `baseUrl`: `https://ecommerce-server-j4am.onrender.com/api/v1`
+- `baseUrlRoot`: `https://ecommerce-server-j4am.onrender.com`
 
 ## Credentials
 Dev super admin (from `.env`):
